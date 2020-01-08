@@ -64,6 +64,22 @@ begin
     end;
 end $$ language plpgsql;
 
+-- Positive test for `goodoptions_key_userdata`:
+-- check that users with valid dsa ssh_key userdata can be inserted.
+create function unit_tests.goodoptions_key_userdata()
+returns test_result as $$
+declare message test_result;
+begin
+    begin
+        insert into passwd (name, host, "data") values ('ud4', 'fo0.hashbang.sh',
+            '{ "name": "x", "ssh_keys": ["command=\"dump /home\",no-pty,no-port-forwarding ssh-dss AAAAB3NzaC1kc3MAAACBAKzH7a5sttExNby1J5UaVkJbmAeRxzLvezj59FdpTp5M9zwxdEY3MI7eM/5Dq9j5/Tnd921ixSJyV0vbFka7iEtr2mqp8D1ndSdmJSUtCONDrMm5CfYwwDXlCrujewR1Lt14rADXUWq1ne9TULmhU+0NlkZu32xs5qr8+r8KvimtAAAAFQCjvNn169//E0D18ZWvHum3lyDM7wAAAIBHHGmi/xBcWEiOge8MmTk6tQLHK4jU3V1uayw6w/Z2ixg3eXniSNYKjrDOD5IhbI4MPoYEXKEpWNWJzoOrl2Vl3uzHgGVJ/npTc2mLyvz59/D+bOD7b+vjqqvUXgkjb8rBikG4yBzdVdhpn+pwGIhU2LIM17iSgkVQwRb989IP9wAAAIAEj6i5ipBOPHlvzoTb5ZHhByIo5ogOD47b0UmEoLoBLG4PLfc6kfT9uXFpLRfqNMbzhsy6H7DgEnZYlK7ne2FeXzwxU8Tzuptx8YdZW1paeKxwxsECT5Z0UliJ3mouruNDpEI2N7rIBcWdD/3ck7EtGbPFgtJt7IarFQiHIVSLQA== usercomment"], "shell": "/usr/bin/zsh" }'::jsonb);
+        return assert.ok('End of test.');
+    exception
+    when check_violation then
+        return assert.fail('Unable to insert user.');
+    end;
+end $$ language plpgsql;
+
 -- Positive test for `ecdsa_key_userdata`:
 -- check that users with valid ecdsa ssh_key userdata can be inserted.
 create function unit_tests.ecdsa_key_userdata()
@@ -71,7 +87,7 @@ returns test_result as $$
 declare message test_result;
 begin
     begin
-        insert into passwd (name, host, "data") values ('ud4', 'fo0.hashbang.sh',
+        insert into passwd (name, host, "data") values ('ud5', 'fo0.hashbang.sh',
             '{ "name": "x", "ssh_keys": ["ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBF7HJjm4tLwVdpG11KH26cK+K42oUwF3fRFoqgmj0BxtYjhTl/aS4qmB5K9z2mwGXn4ZVEfBnFpXTDBgwXzAvMA= usercomment"], "shell": "/usr/bin/zsh" }'::jsonb);
         return assert.ok('End of test.');
     exception
